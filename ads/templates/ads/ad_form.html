@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>{{ title }}</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Поле Заголовок -->
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Описание -->
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Кастомный dropdown для категорий -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.categories.label }}</label>
+                <div class="dropdown categories-dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="categoriesDropdownBtn">
+                        Выберите категории
+                    </button>
+                    <div class="dropdown-menu p-3" style="min-width: 250px; max-height: 300px; overflow-y: auto;">
+                        {% for category in form.categories.field.queryset %}
+                        <div class="form-check">
+                            <input class="form-check-input category-checkbox" type="checkbox" value="{{ category.pk }}" id="cat_{{ category.pk }}" data-name="{{ category.name }}">
+                            <label class="form-check-label" for="cat_{{ category.pk }}">
+                                {{ category.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div id="selectedCategoriesDisplay" class="mt-2 text-muted small"></div>
+                <!-- Скрытый select, который будет отправлять данные на сервер -->
+                <select name="categories" id="id_categories" multiple style="display:none;">
+                    {% for category in form.categories.field.queryset %}
+                    <option value="{{ category.pk }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.categories.errors %}<div class="text-danger small">{{ form.categories.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Цена за день -->
+            <div class="mb-3">
+                <label for="{{ form.price_per_day.id_for_label }}" class="form-label">{{ form.price_per_day.label }}</label>
+                {{ form.price_per_day }}
+                {% if form.price_per_day.errors %}<div class="text-danger small">{{ form.price_per_day.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Город -->
+            <div class="mb-3">
+                <label for="{{ form.location.id_for_label }}" class="form-label">{{ form.location.label }}</label>
+                {{ form.location }}
+                {% if form.location.errors %}<div class="text-danger small">{{ form.location.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Телефон -->
+            <div class="mb-3">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
+                {{ form.phone }}
+                {% if form.phone.help_text %}<div class="form-text">{{ form.phone.help_text }}</div>{% endif %}
+                {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Email -->
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                {{ form.email }}
+                {% if form.email.help_text %}<div class="form-text">{{ form.email.help_text }}</div>{% endif %}
+                {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Фото -->
+            <div class="mb-3">
+                <label for="{{ form.image.id_for_label }}" class="form-label">{{ form.image.label }}</label>
+                {{ form.image }}
+                {% if form.image.errors %}<div class="text-danger small">{{ form.image.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Доступно с -->
+            <div class="mb-3">
+                <label for="{{ form.available_from.id_for_label }}" class="form-label">{{ form.available_from.label }}</label>
+                {{ form.available_from }}
+                {% if form.available_from.errors %}<div class="text-danger small">{{ form.available_from.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Поле Доступно до -->
+            <div class="mb-3">
+                <label for="{{ form.available_until.id_for_label }}" class="form-label">{{ form.available_until.label }}</label>
+                {{ form.available_until }}
+                {% if form.available_until.errors %}<div class="text-danger small">{{ form.available_until.errors }}</div>{% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="{% url 'ad_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получаем элементы
+        const dropdownBtn = document.getElementById('categoriesDropdownBtn');
+        const checkboxes = document.querySelectorAll('.category-checkbox');
+        const hiddenSelect = document.getElementById('id_categories');
+        const displayDiv = document.getElementById('selectedCategoriesDisplay');
+
+        // Функция для синхронизации чекбоксов со скрытым select (начальное состояние при редактировании)
+        function syncCheckboxesFromHiddenSelect() {
+            // Собираем значения выбранных опций в скрытом select
+            const selectedValues = Array.from(hiddenSelect.options)
+                .filter(opt => opt.selected)
+                .map(opt => opt.value);
+            // Проставляем checked у чекбоксов
+            checkboxes.forEach(cb => {
+                cb.checked = selectedValues.includes(cb.value);
+            });
+        }
+
+        // Функция обновления кнопки и скрытого select на основе выбранных чекбоксов
+        function updateSelection() {
+            const selected = [];
+            const selectedNames = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    selected.push(cb.value);
+                    selectedNames.push(cb.dataset.name);
+                }
+            });
+
+            // Обновляем скрытый select: сначала очищаем все option, потом отмечаем нужные
+            for (let opt of hiddenSelect.options) {
+                opt.selected = selected.includes(opt.value);
+            }
+
+            // Меняем текст на кнопке
+            if (selectedNames.length === 0) {
+                dropdownBtn.textContent = 'Выберите категории';
+            } else if (selectedNames.length <= 2) {
+                dropdownBtn.textContent = selectedNames.join(', ');
+            } else {
+                dropdownBtn.textContent = `Выбрано ${selectedNames.length} категорий`;
+            }
+
+            // Отображаем выбранные под кнопкой (опционально)
+            if (selectedNames.length > 0) {
+                displayDiv.textContent = `Выбрано: ${selectedNames.join(', ')}`;
+            } else {
+                displayDiv.textContent = '';
+            }
+        }
+
+        // Инициализация: при загрузке страницы синхронизируем чекбоксы со скрытым select
+        syncCheckboxesFromHiddenSelect();
+        // После синхронизации обновляем интерфейс
+        updateSelection();
+
+        // Навешиваем обработчики на чекбоксы
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateSelection);
+        });
+
+        // Чтобы dropdown не закрывался при клике на чекбокс (Bootstrap по умолчанию закрывает)
+        document.querySelector('.dropdown-menu').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+{% endblock %}

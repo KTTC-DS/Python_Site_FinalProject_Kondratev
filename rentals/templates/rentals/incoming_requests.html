@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Входящие запросы{% endblock %}
+{% block content %}
+<h2>Запросы на мои объявления</h2>
+{% for req in page_obj %}
+<div class="card mb-2">
+    <div class="card-body">
+        <h5>{{ req.ad.title }}</h5>
+        <p>Арендатор: {{ req.renter.username }} | {{ req.start_date }} — {{ req.end_date }} | {{ req.quantity }} шт.</p>
+        <p>Статус: {{ req.get_status_display }}</p>
+        <p>Комментарий: {{ req.comment }}</p>
+        {% if req.status == 'pending' %}
+        <a href="{% url 'update_rental_request_status' req.id 'approved' %}" class="btn btn-success btn-sm">Одобрить</a>
+        <a href="{% url 'update_rental_request_status' req.id 'rejected' %}" class="btn btn-danger btn-sm">Отклонить</a>
+        {% endif %}
+    </div>
+</div>
+{% empty %}
+<p>Нет входящих запросов.</p>
+{% endfor %}
+{% include 'pagination.html' %}
+{% endblock %}

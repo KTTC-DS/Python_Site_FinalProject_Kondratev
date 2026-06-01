@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Все объявления{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Каталог</h1>
+
+<!-- Форма поиска и фильтров -->
+<form method="get" class="row g-3 mb-4">
+  <div class="col-md-3">
+    <input type="text" name="q" class="form-control" placeholder="Поиск по заголовку/описанию" value="{{ request.GET.q }}">
+  </div>
+  <div class="col-md-2">
+    <select name="category" class="form-select w-100" style="height: 38px;">
+      <option value="">Все категории</option>
+      {% for cat in categories %}
+      <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>
+        {{ cat.name }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <input type="text" name="location" class="form-control" placeholder="Город" value="{{ request.GET.location }}">
+  </div>
+  <div class="col-md-2">
+    <input type="number" name="min_price" class="form-control" placeholder="Цена от" value="{{ request.GET.min_price }}">
+  </div>
+  <div class="col-md-2">
+    <input type="number" name="max_price" class="form-control" placeholder="Цена до" value="{{ request.GET.max_price }}">
+  </div>
+  <div class="col-md-1">
+    <button type="submit" class="btn btn-primary w-100">Найти</button>
+  </div>
+</form>
+
+{% if page_obj %}
+<div class="row">
+  {% for ad in page_obj %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100">
+      <div class="ad-image-container">
+        {% if ad.image %}
+        <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+        {% else %}
+        <span class="text-secondary">Нет фото</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">{{ ad.title }}</h5>
+        <p class="card-text">{{ ad.description|truncatechars:100 }}</p>
+        <p class="card-text"><strong>{{ ad.price_per_day }} ₽/день</strong></p>
+        <p class="card-text"><small class="text-muted">{{ ad.location }}</small></p>
+        <a href="{% url 'ad_detail' ad.id %}" class="btn btn-sm btn-primary">Подробнее</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Пагинация -->
+{% include 'pagination.html' %}
+
+{% else %}
+<p>Объявлений не найдено.</p>
+{% endif %}
+
+{% endblock %}

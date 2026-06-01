@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Модерация объявлений{% endblock %}
+{% block content %}
+<h2>Модерация объявлений</h2>
+<form method="post">
+  {% csrf_token %}
+  {% for ad in ads %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          {% if ad.image %}
+          <img src="{{ ad.image.url }}" class="img-fluid rounded" alt="{{ ad.title }}">
+          {% else %}
+          <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">Нет фото</div>
+          {% endif %}
+        </div>
+        <div class="col-md-8">
+          <h3>{{ ad.title }}</h3>
+          <p><strong>Описание:</strong> {{ ad.description }}</p>
+          <p><strong>Цена за день:</strong> {{ ad.price_per_day }} ₽</p>
+          <p><strong>Местоположение:</strong> {{ ad.location }}</p>
+          <p><strong>Телефон:</strong> {{ ad.phone|default:"не указан" }}</p>
+          <p><strong>Email:</strong> {{ ad.email|default:"не указан" }}</p>
+          <p><strong>Доступно:</strong>
+            {% if ad.available_from %}с {{ ad.available_from|date:"d.m.Y" }}{% endif %}
+            {% if ad.available_until %} по {{ ad.available_until|date:"d.m.Y" }}{% endif %}
+            {% if not ad.available_from and not ad.available_until %}не указано{% endif %}
+          </p>
+          <p><strong>Категории:</strong>
+            {% for cat in ad.categories.all %}{{ cat.name }}{% if not forloop.last %}, {% endif %}{% empty %}не выбраны{% endfor %}
+          </p>
+          <p><strong>Автор:</strong> {{ ad.author.username }} ({{ ad.author.email }})</p>
+          <p><strong>Дата создания:</strong> {{ ad.created_at|date:"d.m.Y H:i" }}</p>
+        </div>
+      </div>
+      <div class="mt-3">
+        <label class="me-3">
+          <input type="radio" name="approve_{{ ad.id }}" value="approve"> Одобрить
+        </label>
+        <label>
+          <input type="radio" name="approve_{{ ad.id }}" value="delete"> Удалить
+        </label>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>Нет объявлений на модерацию.</p>
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">Применить</button>
+</form>
+{% endblock %}

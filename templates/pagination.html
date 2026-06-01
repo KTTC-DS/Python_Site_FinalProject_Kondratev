@@ -1,0 +1,100 @@
+{% if page_obj.has_other_pages %}
+<div class="pagination-fixed">
+  <div class="pagination-left">
+    {% if page_obj.has_previous %}
+    <a href="?page=1" class="pagination-btn">Первая</a>
+    <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn">Предыдущая</a>
+    {% else %}
+    <span class="pagination-btn disabled">Первая</span>
+    <span class="pagination-btn disabled">Предыдущая</span>
+    {% endif %}
+  </div>
+  <div class="pagination-center">
+    <span class="page-count">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+  </div>
+  <div class="pagination-right">
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn">Следующая</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-btn">Последняя</a>
+    {% else %}
+    <span class="pagination-btn disabled">Следующая</span>
+    <span class="pagination-btn disabled">Последняя</span>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .pagination-fixed {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 800px;
+      margin: 30px auto 20px;
+      gap: 20px;
+      flex-wrap: wrap;
+      /* Убираем фон, тень и скругление */
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+  }
+  .pagination-left, .pagination-right {
+      display: flex;
+      gap: 12px;
+      flex: 1;
+  }
+  .pagination-left { justify-content: flex-start; }
+  .pagination-right { justify-content: flex-end; }
+  .pagination-center { flex-shrink: 0; min-width: 160px; text-align: center; }
+
+  /* Стиль кнопок пагинации (жёлтые, с анимацией) */
+  .pagination-btn {
+      background-color: #ffc107;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 30px;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-block;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .pagination-btn:hover:not(.disabled) {
+      background-color: #e0a800;
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(255,193,7,0.8);
+      color: #000;
+  }
+  .pagination-btn.disabled {
+      background-color: #e9ecef;
+      color: #adb5bd;
+      cursor: default;
+      box-shadow: none;
+  }
+  .page-count {
+      background-color: #e9ecef;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #495057;
+      display: inline-block;
+      min-width: 140px;
+      text-align: center;
+  }
+  @media (max-width: 700px) {
+      .pagination-fixed {
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+      }
+      .pagination-left, .pagination-right {
+          justify-content: center;
+      }
+      .pagination-center {
+          order: -1;
+      }
+  }
+</style>
+{% endif %}

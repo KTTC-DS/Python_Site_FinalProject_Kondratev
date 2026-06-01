@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 detail-image-container">
+        {% if ad.image %}
+        <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+        {% else %}
+        <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 300px;">Нет фото</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h1>{{ ad.title }}</h1>
+        <p><strong>Описание:</strong> {{ ad.description }}</p>
+        <p><strong>Цена за день:</strong> {{ ad.price_per_day }} ₽</p>
+        <p><strong>Местоположение:</strong> {{ ad.location }}</p>
+        {% if ad.available_from and ad.available_until %}
+        <p><strong>Доступно для аренды:</strong> с {{ ad.available_from|date:"d.m.Y" }} по {{ ad.available_until|date:"d.m.Y" }}</p>
+        {% else %}
+        <p><strong>Доступность:</strong> не указана</p>
+        {% endif %}
+        <p><strong>Контакты:</strong>
+            {% if user.is_authenticated %}
+            {% if ad.phone %}Телефон: {{ ad.phone }}<br>{% endif %}
+            {% if ad.email %}Email: {{ ad.email }}{% endif %}
+            {% if not ad.phone and not ad.email %}Не указаны{% endif %}
+            {% else %}
+            <span class="text-muted">Доступно только авторизованным пользователям. <a href="{% url 'login' %}?next={{ request.path }}">Войдите</a> или <a href="{% url 'register' %}">зарегистрируйтесь</a>.</span>
+            {% endif %}
+        </p>
+        {% if user == ad.author %}
+        <div class="mt-3">
+            <a href="{% url 'ad_edit' ad.id %}" class="btn btn-warning">Редактировать</a>
+            <a href="{% url 'ad_delete' ad.id %}" class="btn btn-danger">Удалить</a>
+        </div>
+        {% endif %}
+
+        {% if user.is_staff and user != ad.author %}
+        <div class="mt-3">
+            <a href="{% url 'ad_delete' ad.id %}" class="btn btn-outline-danger">Удалить (админ)</a>
+        </div>
+        {% endif %}
+
+        <!-- Кнопка "Арендовать" -->
+        <div class="mt-3">
+            {% if user.is_authenticated and user != ad.author %}
+            <a href="{% url 'create_rental_request' ad.id %}" class="btn btn-success">Арендовать</a>
+            {% elif not user.is_authenticated %}
+            <a href="{% url 'login' %}?next={% url 'ad_detail' ad.id %}" class="btn btn-success">Арендовать</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<h3>Отзывы ({{ ad.reviews.count }})</h3>
+
+<!-- Кнопка "Оставить отзыв" для авторизованных -->
+{% if user.is_authenticated %}
+<a href="{% url 'add_review' ad.id %}" class="btn btn-sm btn-outline-primary mb-3">Оставить отзыв</a>
+{% endif %}
+
+{% for review in reviews_page_obj %}
+<div class="card mb-2">
+    <div class="card-body">
+        <div><strong>{{ review.author.username }}</strong> — оценка: {{ review.rating }}/5</div>
+        <p>{{ review.text }}</p>
+        {% if review.image %}
+        <div class="mt-2">
+            <img src="{{ review.image.url }}" style="max-height: 100px; width: auto; border-radius: 5px;" alt="Фото отзыва">
+        </div>
+        {% endif %}
+        <small class="text-muted">{{ review.created_at|date:"d.m.Y H:i" }}</small>
+    </div>
+</div>
+{% empty %}
+<p>Пока нет отзывов. Будьте первым!</p>
+{% endfor %}
+
+<!-- Пагинация отзывов -->
+{% if reviews_page_obj.has_other_pages %}
+<div class="mt-3">
+    <nav aria-label="Пагинация отзывов">
+        <ul class="pagination justify-content-center">
+            {% if reviews_page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?reviews_page=1" tabindex="-1">Первая</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?reviews_page={{ reviews_page_obj.previous_page_number }}">Предыдущая</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Первая</span></li>
+            <li class="page-item disabled"><span class="page-link">Предыдущая</span></li>
+            {% endif %}
+
+            <li class="page-item disabled"><span class="page-link">Страница {{ reviews_page_obj.number }} из {{ reviews_page_obj.paginator.num_pages }}</span></li>
+
+            {% if reviews_page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?reviews_page={{ reviews_page_obj.next_page_number }}">Следующая</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?reviews_page={{ reviews_page_obj.paginator.num_pages }}">Последняя</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Следующая</span></li>
+            <li class="page-item disabled"><span class="page-link">Последняя</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+<p><a href="{% url 'ad_list' %}">← Назад к списку</a></p>
+{% endblock %}

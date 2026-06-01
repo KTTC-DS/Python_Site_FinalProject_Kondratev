@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Мои объявления{% endblock %}
+{% block content %}
+<h2>Мои объявления</h2>
+<div class="row">
+  {% for ad in page_obj %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100">
+      <div class="ad-image-container">
+        {% if ad.image %}<img src="{{ ad.image.url }}" alt="{{ ad.title }}">{% else %}<span class="text-secondary">Нет фото</span>{% endif %}
+      </div>
+      <div class="card-body">
+        <h5>{{ ad.title }}</h5>
+        <p>{{ ad.description|truncatechars:80 }}</p>
+        <p><strong>{{ ad.price_per_day }} ₽/день</strong></p>
+        <p>Статус: {% if ad.is_approved %}✔ Одобрено{% else %}⏳ На модерации{% endif %}</p>
+        <a href="{% url 'ad_edit' ad.id %}" class="btn btn-sm btn-warning">Редактировать</a>
+        <a href="{% url 'ad_delete' ad.id %}" class="btn btn-sm btn-danger">Удалить</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>У вас ещё нет объявлений. <a href="{% url 'ad_create' %}">Создать</a></p>
+  {% endfor %}
+</div>
+{% include 'pagination.html' %}
+{% endblock %}
