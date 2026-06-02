@@ -1,8 +1,8 @@
 # Дипломный проект: Веб-сайт для аренды одежды
 
 **Автор:** Денис Кондратьев  
-**GitHub:** [ваш логин]  
-**Email:** [ваш email]
+**GitHub:** KTTC-DS  
+**Email:** denis_kondratev_2011@mail.ru
 
 ---
 
@@ -51,7 +51,7 @@
 
 1. **Клонировать репозиторий**
    ```bash
-   git clone https://github.com/ваш-логин/Python_Site_FinalProject_Kondratev.git
+   git clone https://github.com/KTTC-DS/Python_Site_FinalProject_Kondratev.git
    cd Python_Site_FinalProject_Kondratev
 
 2. **Создать файл .env (пример в .env.example)**
@@ -100,6 +100,7 @@
    python manage.py runserver
    
 ### 🧪 Тестирование
+
 **Тесты написаны с использованием pytest. Для запуска:**
 ```bash
 docker-compose exec web pytest -v
@@ -109,15 +110,19 @@ docker-compose exec web pytest -v
 pytest -v
 ```
 
-### 📂 Структура проекта (основные директории)
+## 📂 Структура проекта (основные директории)
+| Директория | Описание |
+|------------|----------|
+| `clothing_rental/` | Основная конфигурация проекта |
+| `ads/` | Приложение объявлений (модели, формы, представления) |
+| `users/` | Кастомная модель пользователя |
+| `reviews/` | Отзывы с фото |
+| `rentals/` | Запросы на аренду и транзакции |
+| `pages/` | Заглушка (не используется) |
+| `static/` | Статические файлы (CSS, favicon.ico) |
+| `templates/` | Базовые шаблоны (base.html, pagination.html) |
+| `media/` | Загруженные пользователями файлы (создаётся автоматически) |
+| `tests/` | Pytest тесты (conftest.py, test_*.py) |
 
-clothing_rental/          # Основная конфигурация проекта
-├── ads/                  # Приложение объявлений (модели, формы, представления)
-├── users/                # Кастомная модель пользователя
-├── reviews/              # Отзывы с фото
-├── rentals/              # Запросы на аренду и транзакции
-├── pages/                # Заглушка (не используется)
-├── static/               # Статические файлы (CSS, favicon.ico)
-├── templates/            # Базовые шаблоны (base.html, pagination.html)
-├── media/                # Загруженные пользователями файлы (создаётся автоматически)
-└── tests/                # Pytest тесты (conftest.py, test_*.py)
+### 📄 Лицензия
+Разработано в рамках учебного курса. Свободное использование.
